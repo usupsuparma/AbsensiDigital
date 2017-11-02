@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -14,17 +15,26 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.TextClock;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
 import java.util.Arrays;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
     //constanta
     private static final String TAG="MainActivity";
     private static final int DEVICE_ID_REQUEST =01;
     private static final int PERM_COARSE_LOCATION=200;
+    private static final long UPDATE_INTERVAL = 2 * 1000;  /* 10 secs */
+    private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 999;
+    // Location updates intervals in
+    private static int FATEST_INTERVAL = 5000; // 5 sec
+    private static int DISPLACEMENT = 10; // 10 meters
 
 
     private TextClock mTextClock;
@@ -40,20 +50,32 @@ public class MainActivity extends AppCompatActivity {
     // google api client
     private GoogleApiClient mGoogleApiClient;
 
+    //location request
+    LocationRequest locationRequest;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mTextClock = (TextClock) findViewById(R.id.textClock);
+        mTextClock = findViewById(R.id.textClock);
 
         //textview
-        mImei = (TextView) findViewById(R.id.textView_imei);
-        mNoPhone = (TextView) findViewById(R.id.textView_nohanphone);
-        mLantitude = (TextView)findViewById(R.id.textView_lantitude);
-        mLongitude = (TextView)findViewById(R.id.textView_longitude);
+        mImei = findViewById(R.id.textView_imei);
+        mNoPhone = findViewById(R.id.textView_nohanphone);
+        mLantitude = findViewById(R.id.textView_lantitude);
+        mLongitude = findViewById(R.id.textView_longitude);
 
         //call method
+        if (checkPlayServices()) {
+            // Building the GoogleApi client
+            buildGoogleApiClient();
+            createLocationRequest();
+
+        }
+
         getDeviceId();
+
+
 
     }
 
@@ -113,10 +135,7 @@ public class MainActivity extends AppCompatActivity {
                     PERM_COARSE_LOCATION);
             // The callback method gets the result of the request.
 
-
-            return;
         }else {
-
 
             mLastLocation = LocationServices.FusedLocationApi
                     .getLastLocation(mGoogleApiClient);
@@ -129,5 +148,63 @@ public class MainActivity extends AppCompatActivity {
                 mLongitude.setText(String.valueOf(longitude));
             }
         }
+    }
+
+    private void buildGoogleApiClient() {
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API).build();
+        Log.i(TAG, "Api client: " + mGoogleApiClient);
+    }
+
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        realGetLocation();
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        Log.i(TAG, "Connection failed: ConnectionResult.getErrorCode() = "
+                + connectionResult.getErrorCode());
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (mGoogleApiClient != null) {
+            mGoogleApiClient.connect();
+        }
+    }
+    private void createLocationRequest() {
+        locationRequest = new LocationRequest();
+        locationRequest.setInterval(UPDATE_INTERVAL);
+        locationRequest.setFastestInterval(FATEST_INTERVAL);
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        locationRequest.setSmallestDisplacement(DISPLACEMENT);
+    }
+
+    private boolean checkPlayServices() {
+        int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+        Log.i(TAG, "Reuslt code: " + resultCode);
+        if (resultCode != ConnectionResult.SUCCESS) {
+            if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
+                GooglePlayServicesUtil.getErrorDialog(resultCode, this, PLAY_SERVICES_RESOLUTION_REQUEST).show();
+            } else {
+                Toast.makeText(getApplicationContext(),
+                        "This device is not supported.", Toast.LENGTH_LONG)
+                        .show();
+                finish();
+            }
+            return false;
+        }
+        return true;
+
     }
 }
