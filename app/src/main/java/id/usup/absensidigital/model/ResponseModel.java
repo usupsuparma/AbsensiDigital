@@ -1,25 +1,28 @@
 package id.usup.absensidigital.model;
 
+import com.google.gson.annotations.SerializedName;
+
 /**
  * Created by acer on 10/30/2017.
  */
 
 public class ResponseModel {
-    String kode, pesan;
+    @SerializedName("code") String code;
+    @SerializedName("message") String message;
 
-    public String getKode() {
-        return kode;
+    public String getCode() {
+        return code;
     }
 
-    public void setKode(String kode) {
-        this.kode = kode;
+    public void setCode(String code) {
+        this.code = code;
     }
 
-    public String getPesan() {
-        return pesan;
+    public String getMessage() {
+        return message;
     }
 
-    public void setPesan(String pesan) {
-        this.pesan = pesan;
+    public void setMessage(String message) {
+        this.message = message;
     }
 }
