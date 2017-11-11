@@ -1,6 +1,20 @@
 <resources>
     <string name="app_name">Absensi Digital</string>
 
+    //TextView
     <string name="textview_imei">Imai</string>
     <string name="textview_nohandphone">No Handphone</string>
+    
+    //edittext
+    <string name="edittext_nip">NIP</string>
+    <string name="edittext_nama">Nama</string>
+    <string name="edittext_alamat">Alamat</string>
+    <string name="edittext_jk">Jenis Kelamin</string>
+    <string name="edittext_nohp">No Handphone</string>
+    <string name="edittext_imei">Imei</string>
+
+    // Button
+    <string name="button_in">IN</string>
+    <string name="button_out">OUT</string>
+    <string name="button_save">SAVE</string>
 </resources>

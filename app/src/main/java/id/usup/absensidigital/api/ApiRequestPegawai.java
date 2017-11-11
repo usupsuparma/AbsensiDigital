@@ -1,6 +1,6 @@
 package id.usup.absensidigital.api;
 
-import id.usup.absensidigital.model.ResponseModel;
+import id.usup.absensidigital.model.Value;
 import retrofit2.Call;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
@@ -13,12 +13,12 @@ import retrofit2.http.POST;
 public interface ApiRequestPegawai {
 
     @FormUrlEncoded
-    @POST
-    Call<ResponseModel>sendDataPegawai(@Field("nip")String nip,
-                                       @Field("nama") String nama,
-                                       @Field("alamat") String alamat,
-                                       @Field("jk") String jenisKelamin,
-                                       @Field("nohp") String noHp,
-                                       @Field("imei") String imei
-                                       );
+    @POST("insert.php")
+    Call<Value> sendDataPegawai(@Field("nip")String nip,
+                                @Field("nama") String nama,
+                                @Field("alamat") String alamat,
+                                @Field("jk") String jenisKelamin,
+                                @Field("nohp") String noHp,
+                                @Field("imei") String imei
+    );
 }
