@@ -26,8 +26,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 
 public class SignUpActivity extends AppCompatActivity {
-    //private static final String URL = "http://10.140.0.105/absensi/";
-    private static final String URL = "http://192.168.43.239/absensi/";
+    private static final String URL = "http://10.140.140.116/absensi/";
+//    private static final String URL = "http://192.168.43.239/absensi/";
     //constant
     private static final String TAG = "Sign Up Activity";
     private static final int DEVICE_ID_REQUEST = 101;
