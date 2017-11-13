@@ -17,7 +17,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import id.usup.absensidigital.api.ApiRequestPegawai;
-import id.usup.absensidigital.api.RetroServer;
 import id.usup.absensidigital.model.Value;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -27,7 +26,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 
 public class SignUpActivity extends AppCompatActivity {
-    private static final String URL = "http://10.140.0.105/absensi/";
+    //private static final String URL = "http://10.140.0.105/absensi/";
+    private static final String URL = "http://192.168.43.239/absensi/";
     //constant
     private static final String TAG = "Sign Up Activity";
     private static final int DEVICE_ID_REQUEST = 101;
@@ -36,69 +36,88 @@ public class SignUpActivity extends AppCompatActivity {
     private ProgressDialog progress;
 
 
-    @BindView(R.id.edittext_signup_nip)     EditText mNIP;
-    @BindView(R.id.edittext_signup_name)    EditText mName;
-    @BindView(R.id.edittext_signup_address) EditText mAddress;
-    @BindView(R.id.edittext_signup_imei)    EditText mImei;
-    @BindView(R.id.edittext_signup_nohp)    EditText mNoHp;
-    @BindView(R.id.radiogroup_signup_gender)RadioGroup mGender;
+    @BindView(R.id.edittext_signup_nip)
+    EditText mNIP;
+    @BindView(R.id.edittext_signup_name)
+    EditText mName;
+    @BindView(R.id.edittext_signup_address)
+    EditText mAddress;
+    @BindView(R.id.edittext_signup_imei)
+    EditText mImei;
+    @BindView(R.id.edittext_signup_nohp)
+    EditText mNoHp;
+    @BindView(R.id.radiogroup_signup_gender)
+    RadioGroup mGender;
 
-    @OnClick(R.id.button_signup_save) void sendDataPegawai(){
-        //create progress dialog
-        progress= new ProgressDialog(this);
-        progress.setCancelable(false);
-        progress.setMessage("Loading...");
-        progress.show();
+    @OnClick(R.id.button_signup_save)
+    void sendDataPegawai() {
+        final String nameCheck = mName.getText().toString();
+        final char first = nameCheck.charAt(0);
+        if (mNIP.getText().toString().equals("")) {
+            Toast.makeText(getApplicationContext(), "Please Insert NIP", Toast.LENGTH_SHORT).show();
+        } else if (mName.getText().toString().equals("") || first == 1) {
+            Toast.makeText(getApplicationContext(), "Please Insert NAME", Toast.LENGTH_SHORT).show();
+        } else if (mAddress.getText().toString().isEmpty()) {
+            Toast.makeText(getApplicationContext(), "Please Insert Address", Toast.LENGTH_SHORT).show();
+        } else if (first == 1) {
+            Toast.makeText(getApplicationContext(), "Please Insert First Letter mush be Character", Toast.LENGTH_SHORT).show();
 
-        //call edit text
-        final String nip = mNIP.getText().toString();
-        final String name = mName.getText().toString();
-        final String address = mAddress.getText().toString();
-        final String imei= mImei.getText().toString();
-        final String noHp = mNoHp.getText().toString();
+        } else {
+            //create progress dialog
+            final String loading = getString(R.string.progress_dialog_hint);
+            progress = new ProgressDialog(this);
+            progress.setCancelable(false);
+            progress.setMessage(loading);
+            progress.show();
 
-        int idSelectedGender = mGender.getCheckedRadioButtonId();
-        //search id radio button
-        radioSexButton = findViewById(idSelectedGender);
-        final String gender = radioSexButton.getText().toString();
+            //call edit text
+            final String nip = mNIP.getText().toString();
+            final String name = mName.getText().toString();
+            final String address = mAddress.getText().toString();
+            final String imei = mImei.getText().toString();
+            final String noHp = mNoHp.getText().toString();
 
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-        ApiRequestPegawai api = retrofit.create(ApiRequestPegawai.class);
-        Call<Value> call = api.sendDataPegawai(nip,name,address,gender,noHp,imei);
-        call.enqueue(new Callback<Value>() {
-            @Override
-            public void onResponse(Call<Value> call, Response<Value> response) {
-                final String value = response.body().getmValue();
-                Log.d(TAG,"value: "+value);
-                final String message = response.body().getmMessage();
-                Log.d(TAG,"message: "+message);
+            int idSelectedGender = mGender.getCheckedRadioButtonId();
+            //search id radio button
+            radioSexButton = findViewById(idSelectedGender);
+            final String gender = radioSexButton.getText().toString();
 
-                if (value.equals("1")) {
-                    Log.d(TAG,"value dapat 1");
-                    Toast.makeText(SignUpActivity.this, message, Toast.LENGTH_SHORT).show();
-                    progress.dismiss();
-                } else {
-                    Toast.makeText(SignUpActivity.this, message, Toast.LENGTH_SHORT).show();
-                    progress.dismiss();
+            Retrofit retrofit = new Retrofit.Builder()
+                    .baseUrl(URL)
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build();
+            ApiRequestPegawai api = retrofit.create(ApiRequestPegawai.class);
+            Call<Value> call = api.sendDataPegawai(nip, name, address, gender, noHp, imei);
+            call.enqueue(new Callback<Value>() {
+                @Override
+                public void onResponse(Call<Value> call, Response<Value> response) {
+                    final String value = response.body().getmValue();
+                    Log.d(TAG, "value: " + value);
+                    final String message = response.body().getmMessage();
+                    Log.d(TAG, "message: " + message);
+
+                    if (value.equals("1")) {
+                        Log.d(TAG, "value dapat 1");
+                        Toast.makeText(SignUpActivity.this, message, Toast.LENGTH_SHORT).show();
+                        progress.dismiss();
+                    } else {
+                        Toast.makeText(SignUpActivity.this, message, Toast.LENGTH_SHORT).show();
+                        progress.dismiss();
+                    }
                 }
-            }
 
-            @Override
-            public void onFailure(Call<Value> call, Throwable t) {
-                progress.dismiss();
-                Toast.makeText(SignUpActivity.this, "Network Error!", Toast.LENGTH_SHORT).show();
-                Log.d(TAG,"error jaringan "+call);
+                @Override
+                public void onFailure(Call<Value> call, Throwable t) {
+                    progress.dismiss();
+                    Toast.makeText(SignUpActivity.this, "Network Error!", Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "error jaringan " + call);
 
-            }
-        });
+                }
+            });
+        }
 
 
     }
-
-
 
 
     @Override
@@ -108,7 +127,6 @@ public class SignUpActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         //method
         getId();
-
 
 
     }
@@ -133,3 +151,4 @@ public class SignUpActivity extends AppCompatActivity {
         }
     }
 }
+

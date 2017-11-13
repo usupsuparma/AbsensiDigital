@@ -4,7 +4,7 @@
     //TextView
     <string name="textview_imei">Imai</string>
     <string name="textview_nohandphone">No Handphone</string>
-    
+
     //edittext
     <string name="edittext_nip">NIP</string>
     <string name="edittext_nama">Nama</string>
@@ -17,4 +17,7 @@
     <string name="button_in">IN</string>
     <string name="button_out">OUT</string>
     <string name="button_save">SAVE</string>
+
+    //Proggress dialog
+    <string name="progress_dialog_hint">Loading...</string>
 </resources>
